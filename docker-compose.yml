@@ -1,9 +1,9 @@
 version: "3"
 services:
   api:
-    image: denir19/api-ts
+    image: denir19/apinewsredis
     ports:
-      - "80:3050"
+      - "5000:3050"
     links:
       - link-db
   link-db:
@@ -13,3 +13,6 @@ services:
       - "28017:28017"
     environment:
       - AUTH=no
+  redis:
+      image: "redis"
+      
