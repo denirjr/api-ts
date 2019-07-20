@@ -3,65 +3,85 @@ import * as HttpStatus from 'http-status';
 import * as redis from 'redis';
 
 import ResponseHelper from '../helpers/responseHelper';
+import responseHelper from '../helpers/responseHelper';
 
 class NewsController {
 
-    get(req, res) {
+    async get(_, res) {
+        try {
+            // Docker Compose
+            // let client = redis.createClient(6379, "redis");
 
-        // Localhost
-        let client = redis.createClient();
+            // Localhost
+            let client = redis.createClient();
 
-        // Docker Compose
-        // let client = redis.createClient(6379, "redis");
-
-        client.get('news', (err, reply) => {
-            if (reply) {
-                console.log('redis');
-                ResponseHelper.sendResponse(res, HttpStatus.OK, JSON.parse(reply));
-            } else {
-                NewsService.get()
-                    .then(news => {
-                        console.log('db');
-                        client.set('news', JSON.stringify(news));
-                        client.expire('news', 20);
-                        ResponseHelper.sendResponse(res, HttpStatus.OK, news);
-                    })
-                    .catch(error => console.error.bind(console, `Error ${error}`));
-            }
-        });
+            await client.get('news', async (_, reply) => {
+                if (reply) {
+                    console.log('redis');
+                    ResponseHelper.sendResponse(res, HttpStatus.OK, JSON.parse(reply));
+                } else {
+                    let result = await NewsService.get();
+                    console.log('db');
+                    client.set('news', JSON.stringify(result));
+                    client.expire('news', 20);
+                    responseHelper.sendResponse(res, HttpStatus.OK, result);
+                }
+            });
+        } catch (error) {
+            this.errorMessageParser(error);
+        }
     }
 
-    getById(req, res) {
-        const id = req.params.id
-
-        NewsService.getById(id)
-            .then(news => ResponseHelper.sendResponse(res, HttpStatus.OK, news))
-            .catch(error => console.error.bind(console, `Error ${error}`));
+    async getById(req, res) {
+        try {
+            const id = req.params.id
+            let result = await NewsService.getById(id)
+            responseHelper.sendResponse(res, HttpStatus.OK, result);
+        } catch (error) {
+            this.errorMessageParser(error);
+        }
     }
 
-    create(req, res) {
-        let news = req.body;
-        NewsService.create(news)
-            .then(() => ResponseHelper.sendResponse(res, HttpStatus.OK, 'Noticia cadastrada com sucesso!'))
-            .catch(error => console.error.bind(console, `Error ${error}`));
+    async create(req, res) {
+        try {
+            let news = req.body;
+            let successMessage: string = 'Noticia cadastrada com sucesso!'
+
+            await NewsService.create(news);
+            ResponseHelper.sendResponse(res, HttpStatus.OK, `${successMessage}`)
+        } catch (error) {
+            this.errorMessageParser(error);
+        }
     }
 
-    update(req, res) {
-        const id = req.params.id;
-        let news = req.body;
+    async update(req, res) {
+        try {
+            const id = req.params.id;
+            let news = req.body;
 
-        NewsService.update(id, news)
-            .then(news => ResponseHelper.sendResponse(res, HttpStatus.OK, 'Noticia foi atualizado com sucesso'))
-            .catch(error => console.error.bind(console, `Error ${error}`));
-
+            await NewsService.update(id, news);
+            ResponseHelper.sendResponse(res, HttpStatus.OK, 'Noticia foi atualizado com sucesso'
+            );
+        } catch (error) {
+            this.errorMessageParser(error);
+        }
     }
 
-    delete(req, res) {
-        const id = req.params.id;
+    async delete(req, res) {
+        try {
+            const id = req.params.id;
+            await NewsService.delete(id);
 
-        NewsService.delete(id)
-            .then(() => ResponseHelper.sendResponse(res, HttpStatus.OK, 'Noticia deletada com sucesso!'))
-            .catch(error => console.error.bind(console, `Error ${error}`));
+            ResponseHelper.sendResponse(res, HttpStatus.OK, 'Noticia deletada com sucesso!'
+            );
+        } catch (error) {
+            
+            this.errorMessageParser(error);
+        }
+    }
+
+    private errorMessageParser(error: string) {
+        return console.error(error);
     }
 }
 

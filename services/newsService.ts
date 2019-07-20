@@ -2,25 +2,29 @@ import NewsRepository from '../repository/newsRepository';
 
 class NewsService {
 
-    get() {
-        return NewsRepository.find({});
+    async get() {
+        let result = await NewsRepository.find({});
+        return result;
     }
 
-    getById(_id) {
-        return NewsRepository.findById(_id);
+    async getById(id) {
+        let result = await NewsRepository.findById(id);
+        return result;
     }
 
-    create(news) {
-        return NewsRepository.create(news);
-
+    async create(news) {
+        let result = await NewsRepository.create(news);
+        return result;
     }
 
-    update(_id, news) {
-        return NewsRepository.findByIdAndUpdate(_id, news);
+    async update(id, news) {
+        let result = await NewsRepository.findByIdAndUpdate(id, news);
+        return result;
     }
 
-    delete(_id) {
-        return NewsRepository.findByIdAndRemove(_id);
+    async delete(_id) {
+        let result = await NewsRepository.findByIdAndRemove(_id);
+        return result;
     }
 }
 
