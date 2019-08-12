@@ -1,11 +1,11 @@
-import * as express from 'express';
 import * as bodyParser from 'body-parser';
+import * as compression from 'compression';
 import * as cors from 'cors';
-
+import * as express from 'express';
 import Database from './helpers/database';
-import NewsController from './controller/newsController';
-import Auth from './helpers/auth';
 import uploads from './helpers/uploads';
+import newsRouter from './router/newsRouter';
+
 
 class StartUp {
     public app: express.Application;
@@ -28,13 +28,14 @@ class StartUp {
         this.app.use(cors(options))
     }
 
-   private middler() {
+    private middler() {
         this.enableCors();
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: false }));
+        this.app.use(compression())
     }
 
-   private routes() {
+    private routes() {
 
         // First application route
         this.app.route('/').get((_, res) => {
@@ -50,15 +51,11 @@ class StartUp {
             }
         });
 
-        // JWT Token to validate Routes 
-        this.app.use(Auth.Validate);
+        // JWT Token to validate Routes Middler 
+        // this.app.use(Auth.Validate);
 
-        //new 
-        this.app.route("/api/v1/news").get(NewsController.get);
-        this.app.route("/api/v1/news/:id").get(NewsController.getById);
-        this.app.route("/api/v1/news").post(NewsController.create);
-        this.app.route("/api/v1/news/:id").put(NewsController.update);
-        this.app.route("/api/v1/news/:id").delete(NewsController.delete);
+        //new router
+        this.app.use('/', newsRouter);
     }
 }
 

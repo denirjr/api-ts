@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const express = require("express");
 const bodyParser = require("body-parser");
+const compression = require("compression");
 const cors = require("cors");
+const express = require("express");
 const database_1 = require("./helpers/database");
-const newsController_1 = require("./controller/newsController");
-const auth_1 = require("./helpers/auth");
 const uploads_1 = require("./helpers/uploads");
+const newsRouter_1 = require("./router/newsRouter");
 class StartUp {
     constructor() {
         this.app = express();
@@ -26,6 +26,7 @@ class StartUp {
         this.enableCors();
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: false }));
+        this.app.use(compression());
     }
     routes() {
         // First application route
@@ -41,14 +42,10 @@ class StartUp {
                 console.log(error);
             }
         });
-        // JWT Token to validate Routes 
-        this.app.use(auth_1.default.Validate);
-        //new 
-        this.app.route("/api/v1/news").get(newsController_1.default.get);
-        this.app.route("/api/v1/news/:id").get(newsController_1.default.getById);
-        this.app.route("/api/v1/news").post(newsController_1.default.create);
-        this.app.route("/api/v1/news/:id").put(newsController_1.default.update);
-        this.app.route("/api/v1/news/:id").delete(newsController_1.default.delete);
+        // JWT Token to validate Routes Middler 
+        // this.app.use(Auth.Validate);
+        //new router
+        this.app.use('/', newsRouter_1.default);
     }
 }
 exports.default = new StartUp();
