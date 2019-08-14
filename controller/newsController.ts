@@ -4,6 +4,9 @@ import * as redis from 'redis';
 
 import ResponseHelper from '../helpers/responseHelper';
 import responseHelper from '../helpers/responseHelper';
+import newsService from '../services/newsService';
+
+import ExportFiles from '../helpers/exportFiles';
 
 class NewsController {
 
@@ -42,6 +45,19 @@ class NewsController {
         }
     }
 
+    async exportToCSv(req, res) {
+        try {
+            let response = await newsService.get();
+            let fileName = ExportFiles.toCsv(response);
+            responseHelper.sendResponse(
+                res,
+                HttpStatus.OK,
+                req.get('host') + '/exports-files/' + fileName);
+        } catch (error) {
+            this.errorMessageParser(error);
+        }
+    }
+
     async create(req, res) {
         try {
             let news = req.body;
@@ -75,7 +91,7 @@ class NewsController {
             ResponseHelper.sendResponse(res, HttpStatus.OK, 'Noticia deletada com sucesso!'
             );
         } catch (error) {
-            
+
             this.errorMessageParser(error);
         }
     }

@@ -13,6 +13,8 @@ const HttpStatus = require("http-status");
 const redis = require("redis");
 const responseHelper_1 = require("../helpers/responseHelper");
 const responseHelper_2 = require("../helpers/responseHelper");
+const newsService_2 = require("../services/newsService");
+const exportFiles_1 = require("../helpers/exportFiles");
 class NewsController {
     get(_, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -46,6 +48,18 @@ class NewsController {
                 const id = req.params.id;
                 let result = yield newsService_1.default.getById(id);
                 responseHelper_2.default.sendResponse(res, HttpStatus.OK, result);
+            }
+            catch (error) {
+                this.errorMessageParser(error);
+            }
+        });
+    }
+    exportToCSv(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let response = yield newsService_2.default.get();
+                let fileName = exportFiles_1.default.toCsv(response);
+                responseHelper_2.default.sendResponse(res, HttpStatus.OK, req.get('host') + '/exports-files/' + fileName);
             }
             catch (error) {
                 this.errorMessageParser(error);
