@@ -14,7 +14,7 @@ Run `npm start` This will start the api on http://localhost:3050.
 
 Run `npm run start:dev` This will start and compile the api in the same time on http://localhost:3050.
 
-## update project for dockerCompose and upload on dockerHub:
+## Update project for dockerCompose and upload on dockerHub:
 
 1- Change package.json - OF: `"start": "node ./dist/program.js",` TO: `"start": "node program.js"`.
 
