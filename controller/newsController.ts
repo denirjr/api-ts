@@ -31,8 +31,28 @@ class NewsController {
                 }
             });
         } catch (error) {
-            this.errorMessageParser(error);
+            return console.error(error);
         }
+    }
+
+    async search(req, res) {
+        try {
+            const term = req.params.term;
+            const page = NewsController.searchByPageParams(req)
+            const itemsByPage = NewsController.searchItemsByPageParams(req);
+
+            let result = await NewsService.search(term, page, itemsByPage);
+            responseHelper.sendResponse(res, HttpStatus.OK, result);
+        } catch (error) {
+            return console.error(error);
+        }
+    }
+
+    private static searchByPageParams(req): number {
+        return (req.param('page')) ? parseInt(req.param('page')) : 1;
+    }
+    private static searchItemsByPageParams(req): number {
+        return (req.param('limit')) ? parseInt(req.param('limit')) : 10;
     }
 
     async getById(req, res) {
@@ -41,7 +61,7 @@ class NewsController {
             let result = await NewsService.getById(id)
             responseHelper.sendResponse(res, HttpStatus.OK, result);
         } catch (error) {
-            this.errorMessageParser(error);
+            return console.error(error);
         }
     }
 
@@ -54,7 +74,7 @@ class NewsController {
                 HttpStatus.OK,
                 req.get('host') + '/exports-files/' + fileName);
         } catch (error) {
-            this.errorMessageParser(error);
+            return console.error(error);
         }
     }
 
@@ -66,7 +86,7 @@ class NewsController {
             await NewsService.create(news);
             ResponseHelper.sendResponse(res, HttpStatus.OK, `${successMessage}`)
         } catch (error) {
-            this.errorMessageParser(error);
+            return console.error(error);
         }
     }
 
@@ -74,12 +94,13 @@ class NewsController {
         try {
             const id = req.params.id;
             let news = req.body;
+            let successMessage: string = 'Noticia foi atualizado com sucesso'
 
             await NewsService.update(id, news);
-            ResponseHelper.sendResponse(res, HttpStatus.OK, 'Noticia foi atualizado com sucesso'
+            ResponseHelper.sendResponse(res, HttpStatus.OK, `${successMessage}`
             );
         } catch (error) {
-            this.errorMessageParser(error);
+            return console.error(error);
         }
     }
 
@@ -92,12 +113,8 @@ class NewsController {
             );
         } catch (error) {
 
-            this.errorMessageParser(error);
+            return console.error(error);
         }
-    }
-
-    private errorMessageParser(error: string) {
-        return console.error(error);
     }
 }
 

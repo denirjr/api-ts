@@ -38,9 +38,29 @@ class NewsController {
                 }));
             }
             catch (error) {
-                this.errorMessageParser(error);
+                return console.error(error);
             }
         });
+    }
+    search(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const term = req.params.term;
+                const page = NewsController.searchByPageParams(req);
+                const itemsByPage = NewsController.searchItemsByPageParams(req);
+                let result = yield newsService_1.default.search(term, page, itemsByPage);
+                responseHelper_2.default.sendResponse(res, HttpStatus.OK, result);
+            }
+            catch (error) {
+                return console.error(error);
+            }
+        });
+    }
+    static searchByPageParams(req) {
+        return (req.param('page')) ? parseInt(req.param('page')) : 1;
+    }
+    static searchItemsByPageParams(req) {
+        return (req.param('limit')) ? parseInt(req.param('limit')) : 10;
     }
     getById(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -50,7 +70,7 @@ class NewsController {
                 responseHelper_2.default.sendResponse(res, HttpStatus.OK, result);
             }
             catch (error) {
-                this.errorMessageParser(error);
+                return console.error(error);
             }
         });
     }
@@ -62,7 +82,7 @@ class NewsController {
                 responseHelper_2.default.sendResponse(res, HttpStatus.OK, req.get('host') + '/exports-files/' + fileName);
             }
             catch (error) {
-                this.errorMessageParser(error);
+                return console.error(error);
             }
         });
     }
@@ -75,7 +95,7 @@ class NewsController {
                 responseHelper_1.default.sendResponse(res, HttpStatus.OK, `${successMessage}`);
             }
             catch (error) {
-                this.errorMessageParser(error);
+                return console.error(error);
             }
         });
     }
@@ -84,11 +104,12 @@ class NewsController {
             try {
                 const id = req.params.id;
                 let news = req.body;
+                let successMessage = 'Noticia foi atualizado com sucesso';
                 yield newsService_1.default.update(id, news);
-                responseHelper_1.default.sendResponse(res, HttpStatus.OK, 'Noticia foi atualizado com sucesso');
+                responseHelper_1.default.sendResponse(res, HttpStatus.OK, `${successMessage}`);
             }
             catch (error) {
-                this.errorMessageParser(error);
+                return console.error(error);
             }
         });
     }
@@ -100,12 +121,9 @@ class NewsController {
                 responseHelper_1.default.sendResponse(res, HttpStatus.OK, 'Noticia deletada com sucesso!');
             }
             catch (error) {
-                this.errorMessageParser(error);
+                return console.error(error);
             }
         });
-    }
-    errorMessageParser(error) {
-        return console.error(error);
     }
 }
 exports.default = new NewsController();

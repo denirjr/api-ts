@@ -2,6 +2,13 @@ import NewsRepository from '../repository/newsRepository';
 
 class NewsService {
 
+    async search(term, page, itemsByPage) {
+        let result = await NewsRepository.find({ 'title': new RegExp('.*' + term + '*.', 'i') })
+            .skip((page - 1) * itemsByPage)
+            .limit(itemsByPage);
+        return result
+    }
+
     async get() {
         let result = await NewsRepository.find({});
         return result;
@@ -22,8 +29,8 @@ class NewsService {
         return result;
     }
 
-    async delete(_id) {
-        let result = await NewsRepository.findByIdAndRemove(_id);
+    async delete(id) {
+        let result = await NewsRepository.findByIdAndRemove(id);
         return result;
     }
 }
